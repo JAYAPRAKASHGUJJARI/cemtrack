@@ -8,6 +8,8 @@ import {runSimulator} from './simulator/simulator.js';
 import readingsRouter from './routes/readings.js';
 import authRouter from './routes/auth.js';
 import usersRouter from './routes/users.js';
+import alertsRouter from './routes/alerts.js';
+import {initSocket} from './socket/socketHandler.js';
 dotenv.config();
 const app=express();
 const httpServer =createServer(app);
@@ -25,6 +27,7 @@ app.use(express.json());
  app.use('/readings',readingsRouter);
  app.use('/auth',authRouter);
  app.use('/users',usersRouter);
+ app.use('/alerts',alertsRouter);
 //test route
 app.get('/',(req,res)=>{
     res.json({
@@ -34,13 +37,15 @@ app.get('/',(req,res)=>{
 });
 // socket.io conection
 
-io.on('connection', (socket) => {
-  console.log('Client connected:', socket.id);
+// io.on('connection', (socket) => {
+//   console.log('Client connected:', socket.id);
   
-  socket.on('disconnect', () => {
-    console.log('Client disconnected:', socket.id);
-  });
-});
+//   socket.on('disconnect', () => {
+//     console.log('Client disconnected:', socket.id);
+//   });
+// }); //intially did this
+
+initSocket(); //in socket/socketHandler.hs
 
 
 
