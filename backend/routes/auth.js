@@ -122,4 +122,44 @@ router.get('/me', authenticate, async (req, res) => {
   }
 });
 
+// PATCH /auth/change-password — user changes own password
+router.patch('/change-password', authenticate, async (req, res) => {
+  const { oldPassword, newPassword } = req.body;
+
+  try {
+    // Get user from database
+    const result = await pool.query(
+      'SELECT * FROM users WHERE id = $1',
+      [req.user.id]
+    );
+
+    const user = result.rows[0];
+
+    // Check old password
+    const isMatch = await bcrypt.compare(oldPassword, user.password);
+    if (!isMatch) {
+      return res.status(400).json({
+        success: false,
+        error: 'Old password is incorrect'
+      });
+    }
+
+    // Hash new password
+    const hashedPassword = await bcrypt.hash(newPassword, 10);
+
+    // Update password
+    await pool.query(
+      'UPDATE users SET password = $1 WHERE id = $2',
+      [hashedPassword, req.user.id]
+    );
+
+    res.json({
+      success: true,
+      message: 'Password changed successfully'
+    });
+
+  } catch (err) {
+    res.status(500).json({ success: false, error: err.message });
+  }
+});
 export default router;
