@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useSocket } from '../context/SocketContext';
+import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import API from '../api/axios';
 
@@ -139,6 +140,7 @@ const ParameterCard = ({ paramName, value, lastUpdated }) => {
 
 const Dashboard = () => {
   const { socket } = useSocket();
+  const navigate = useNavigate();
   const { user } = useAuth();
   const [readings, setReadings] = useState({});
   const [activeAlerts, setActiveAlerts] = useState(0);
@@ -258,11 +260,15 @@ const Dashboard = () => {
         </div>
 
         {/* Active alerts */}
-        <div style={{
+        <div 
+        onClick={()=>navigate('/alerts')}
+        style={{
           background: activeAlerts > 0 ? 'rgba(239,68,68,0.1)' : 'rgba(255,255,255,0.03)',
           border: activeAlerts > 0 ? '1px solid rgba(239,68,68,0.3)' : '1px solid rgba(255,255,255,0.08)',
           borderRadius: '12px',
           padding: '16px',
+           cursor: 'pointer', 
+            transition: 'all 0.2s',
         }}>
           <div style={{ color: '#64748b', fontSize: '12px', marginBottom: '8px' }}>ACTIVE ALERTS</div>
           <div style={{ color: activeAlerts > 0 ? '#f87171' : '#4ade80', fontSize: '28px', fontWeight: 'bold' }}>
@@ -271,11 +277,16 @@ const Dashboard = () => {
         </div>
 
         {/* Critical params */}
-        <div style={{
+        <div 
+          onClick={() => navigate('/alerts')}
+        style={{
+           
           background: criticalCount > 0 ? 'rgba(239,68,68,0.1)' : 'rgba(255,255,255,0.03)',
           border: criticalCount > 0 ? '1px solid rgba(239,68,68,0.3)' : '1px solid rgba(255,255,255,0.08)',
           borderRadius: '12px',
           padding: '16px',
+            cursor: 'pointer', 
+            transition: 'all 0.2s', 
         }}>
           <div style={{ color: '#64748b', fontSize: '12px', marginBottom: '8px' }}>CRITICAL</div>
           <div style={{ color: criticalCount > 0 ? '#f87171' : '#4ade80', fontSize: '28px', fontWeight: 'bold' }}>
@@ -284,11 +295,15 @@ const Dashboard = () => {
         </div>
 
         {/* Warning params */}
-        <div style={{
+        <div 
+         onClick={()=> navigate('/alerts')}
+        style={{
           background: warningCount > 0 ? 'rgba(234,179,8,0.1)' : 'rgba(255,255,255,0.03)',
           border: warningCount > 0 ? '1px solid rgba(234,179,8,0.3)' : '1px solid rgba(255,255,255,0.08)',
           borderRadius: '12px',
           padding: '16px',
+          cursor: 'pointer', 
+            transition: 'all 0.2s', 
         }}>
           <div style={{ color: '#64748b', fontSize: '12px', marginBottom: '8px' }}>WARNING</div>
           <div style={{ color: warningCount > 0 ? '#facc15' : '#4ade80', fontSize: '28px', fontWeight: 'bold' }}>
