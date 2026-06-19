@@ -1,9 +1,8 @@
 import pool from '../db.js';
 import {io} from '../index.js';
- 
+
 const safetyCheck = async (parameter_name, value) => {
   try {
-    // Get parameter config
     const config = await pool.query(`
       SELECT * FROM parameters_config
       WHERE parameter_name = $1;
@@ -30,7 +29,7 @@ const safetyCheck = async (parameter_name, value) => {
       await createAlert(parameter_name, numValue, status, 'threshold', message);
     }
 
-    // 2. SPIKE CHECK — compare with last reading
+    // 2. SPIKE CHECK
     const lastReading = await pool.query(`
       SELECT value FROM sensor_readings
       WHERE parameter_name = $1
@@ -55,13 +54,21 @@ const safetyCheck = async (parameter_name, value) => {
   }
 };
 
-// CREATE ALERT HELPER
-
-//  RETURNING * gets the saved alert back
-//  io.emit pushes alert to dashboard live
-// returns alert for simulator to use
-
 const createAlert = async (parameter_name, value, status, type, message) => {
+  // ✅ CHECK — skip if same alert already exists in last 5 minutes
+  const recent = await pool.query(`
+    SELECT id FROM alerts
+    WHERE parameter_name = $1
+    AND type = $2
+    AND status = $3
+    AND created_at >= NOW() - INTERVAL '5 minutes'
+    LIMIT 1;
+  `, [parameter_name, type, status]);
+
+  // If recent alert exists, skip creating new one
+  if (recent.rows.length > 0) return;
+
+  // Otherwise create new alert
   const result = await pool.query(`
     INSERT INTO alerts (parameter_name, value, status, type, message)
     VALUES ($1, $2, $3, $4, $5)
@@ -72,4 +79,5 @@ const createAlert = async (parameter_name, value, status, type, message) => {
   io.emit('new-alert', result.rows[0]);
   return result.rows[0];
 };
-export {safetyCheck,createAlert};
+
+export {safetyCheck, createAlert};
