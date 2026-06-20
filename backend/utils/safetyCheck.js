@@ -17,12 +17,15 @@ const safetyCheck = async (parameter_name, value) => {
     let status = null;
     let message = null;
 
-    if (numValue < param.min_safe || numValue > param.max_safe) {
+    // CRITICAL — outside warning range completely
+    if (numValue < param.min_warning || numValue > param.max_warning) {
       status = 'critical';
       message = `${param.display_name} is at ${numValue} ${param.unit} — outside safe range (${param.min_safe}-${param.max_safe})`;
-    } else if (numValue < param.min_warning || numValue > param.max_warning) {
+    }
+    // WARNING — outside safe range but inside warning range
+    else if (numValue < param.min_safe || numValue > param.max_safe) {
       status = 'warning';
-      message = `${param.display_name} is at ${numValue} ${param.unit} — approaching limits`;
+      message = `${param.display_name} is at ${numValue} ${param.unit} — approaching limits (${param.min_safe}-${param.max_safe})`;
     }
 
     if (status) {
@@ -55,7 +58,7 @@ const safetyCheck = async (parameter_name, value) => {
 };
 
 const createAlert = async (parameter_name, value, status, type, message) => {
-  // ✅ CHECK — skip if same alert already exists in last 5 minutes
+  // Skip if same alert already exists in last 5 minutes
   const recent = await pool.query(`
     SELECT id FROM alerts
     WHERE parameter_name = $1
@@ -65,10 +68,8 @@ const createAlert = async (parameter_name, value, status, type, message) => {
     LIMIT 1;
   `, [parameter_name, type, status]);
 
-  // If recent alert exists, skip creating new one
   if (recent.rows.length > 0) return;
 
-  // Otherwise create new alert
   const result = await pool.query(`
     INSERT INTO alerts (parameter_name, value, status, type, message)
     VALUES ($1, $2, $3, $4, $5)

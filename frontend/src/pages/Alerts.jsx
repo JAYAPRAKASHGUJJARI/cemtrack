@@ -3,6 +3,26 @@ import { useSocket } from '../context/SocketContext';
 import { useAuth } from '../context/AuthContext';
 import API from '../api/axios';
 
+ const parameterDisplayNames = {
+  burning_zone_temp:       'Burning Zone Temp',
+  kiln_inlet_temp:         'Kiln Inlet Temp',
+  kiln_speed:              'Kiln Speed',
+  kiln_feed_rate:          'Kiln Feed Rate',
+  coal_feed_rate:          'Coal Feed Rate',
+  raw_mill_feed_rate:      'Raw Mill Feed Rate',
+  raw_mill_outlet_temp:    'Raw Mill Outlet Temp',
+  raw_mill_power:          'Raw Mill Power',
+  raw_mill_speed:          'Raw Mill Speed',
+  cement_mill_feed_rate:   'Cement Mill Feed Rate',
+  cement_mill_power:       'Cement Mill Power',
+  cement_mill_outlet_temp: 'Cement Mill Outlet Temp',
+  cement_fineness:         'Cement Fineness',
+  clinker_production:      'Clinker Production',
+  cement_production:       'Cement Production',
+  heat_consumption:        'Heat Consumption',
+  equipment_availability:  'Equipment Availability',
+};
+
 const Alerts = () => {
   const { socket } = useSocket();
   const { user } = useAuth();
@@ -98,14 +118,26 @@ const Alerts = () => {
     if (filter === 'unacknowledged') return !alert.acknowledged;
     return true;
   });
+const timeAgo = (dateStr) => {
+  const now = new Date();
+  const past = new Date(dateStr);
+  const istOffset = 5.5 * 60 * 60 * 1000;
+  const pastIST = new Date(past.getTime() + istOffset);
+  const diff = Math.floor((now - pastIST) / 1000);
 
-  const timeAgo = (dateStr) => {
-    const diff = Math.floor((new Date() - new Date(dateStr)) / 1000);
-    if (diff < 60) return `${diff}s ago`;
-    if (diff < 3600) return `${Math.floor(diff / 60)}m ago`;
-    if (diff < 86400) return `${Math.floor(diff / 3600)}h ago`;
-    return `${Math.floor(diff / 86400)}d ago`;
-  };
+  const dateFormatted = pastIST.toLocaleString('en-IN', {
+    day: '2-digit',
+    month: 'short',
+    hour: '2-digit',
+    minute: '2-digit',
+    hour12: true,
+  });
+
+  if (diff < 60) return `${diff}s ago · ${dateFormatted}`;
+  if (diff < 3600) return `${Math.floor(diff / 60)}m ago · ${dateFormatted}`;
+  if (diff < 86400) return `${Math.floor(diff / 3600)}h ago · ${dateFormatted}`;
+  return `${Math.floor(diff / 86400)}d ago · ${dateFormatted}`;
+};
 
   return (
     <div style={{
@@ -269,8 +301,8 @@ const Alerts = () => {
                   </div>
 
                   <div style={{ color: '#475569', fontSize: '12px' }}>
-                    {alert.parameter_name} · {timeAgo(alert.created_at)}
-                  </div>
+  {parameterDisplayNames[alert.parameter_name] || alert.parameter_name} · {timeAgo(alert.created_at)}
+</div>
                 </div>
 
                 {/* Actions */}
