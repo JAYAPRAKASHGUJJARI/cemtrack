@@ -121,11 +121,10 @@ const Alerts = () => {
 const timeAgo = (dateStr) => {
   const now = new Date();
   const past = new Date(dateStr);
-  const istOffset = 5.5 * 60 * 60 * 1000;
-  const pastIST = new Date(past.getTime() + istOffset);
-  const diff = Math.floor((now - pastIST) / 1000);
+  const diff = Math.floor((now - past) / 1000);
 
-  const dateFormatted = pastIST.toLocaleString('en-IN', {
+  const dateFormatted = past.toLocaleString('en-IN', {
+    timeZone: 'Asia/Kolkata',
     day: '2-digit',
     month: 'short',
     hour: '2-digit',
@@ -133,6 +132,7 @@ const timeAgo = (dateStr) => {
     hour12: true,
   });
 
+  if (diff < 0) return `Just now · ${dateFormatted}`;
   if (diff < 60) return `${diff}s ago · ${dateFormatted}`;
   if (diff < 3600) return `${Math.floor(diff / 60)}m ago · ${dateFormatted}`;
   if (diff < 86400) return `${Math.floor(diff / 3600)}h ago · ${dateFormatted}`;

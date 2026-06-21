@@ -5,7 +5,7 @@ import authorize from '../middleware/roles.js';
 
 const router = express.Router();
 
-console.log('NVIDIA KEY:', process.env.NVIDIA_API_KEY); // ← debug line
+//console.log('NVIDIA KEY:', process.env.NVIDIA_API_KEY); // ← debug line
 
 const askNvidia = async (prompt) => {
   const apiKey = process.env.NVIDIA_API_KEY;

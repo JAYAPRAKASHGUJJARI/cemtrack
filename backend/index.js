@@ -11,7 +11,7 @@ import usersRouter from './routes/users.js';
 import alertsRouter from './routes/alerts.js';
 import aiRouter from './routes/ai.js';
 import {initSocket} from './socket/socketHandler.js';
-
+import reportsRouter from './routes/reports.js';
 const app = express();
 const httpServer = createServer(app);
 const io = new Server(httpServer, {
@@ -29,6 +29,7 @@ app.use('/auth', authRouter);
 app.use('/users', usersRouter);
 app.use('/alerts', alertsRouter);
 app.use('/ai', aiRouter);
+app.use('/reports', reportsRouter);
 
 app.get('/', (req, res) => {
   res.json({ message: 'cem track api is working', version: '1.0.0' });
