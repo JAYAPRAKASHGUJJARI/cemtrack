@@ -38,7 +38,7 @@ const askNvidia = async (prompt) => {
 };
 
 // POST /ai/analyze — analyze a specific alert
-router.post('/analyze', authenticate, authorize('manager', 'admin'), async (req, res) => {
+router.post('/analyze', authenticate,  async (req, res) => {
   const { alert_id } = req.body;
   try {
     const alertResult = await pool.query(
@@ -92,7 +92,7 @@ router.post('/analyze', authenticate, authorize('manager', 'admin'), async (req,
 });
 
 // POST /ai/query — natural language query about plant
-router.post('/query', authenticate, authorize('manager', 'admin'), async (req, res) => {
+router.post('/query', authenticate,  async (req, res) => {
   const { question } = req.body;
   try {
     const readingsResult = await pool.query(`
@@ -142,7 +142,7 @@ router.post('/query', authenticate, authorize('manager', 'admin'), async (req, r
 });
 
 // POST /ai/report — generate shift summary
-router.post('/report', authenticate, authorize('manager', 'admin'), async (req, res) => {
+router.post('/report', authenticate,  async (req, res) => {
   try {
     const readingsResult = await pool.query(`
       SELECT 

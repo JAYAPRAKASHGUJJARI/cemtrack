@@ -119,12 +119,16 @@ const Alerts = () => {
     return true;
   });
 const timeAgo = (dateStr) => {
-  const now = new Date();
-  const past = new Date(dateStr);
-  const diff = Math.floor((now - past) / 1000);
+  const past = new Date(dateStr); // UTC from DB
+  const now = new Date(); // local time (IST on your Mac)
+  
+  // now is IST, past is UTC — need to convert now to UTC
+  const nowUTC = new Date(now.getTime() - (5.5 * 60 * 60 * 1000));
+  const diff = Math.floor((nowUTC - past) / 1000);
 
-  const dateFormatted = past.toLocaleString('en-IN', {
-    timeZone: 'Asia/Kolkata',
+  // Add 5.5 hours to past for IST display
+  const istTime = new Date(past.getTime() + (5.5 * 60 * 60 * 1000));
+  const dateFormatted = istTime.toLocaleString('en-IN', {
     day: '2-digit',
     month: 'short',
     hour: '2-digit',

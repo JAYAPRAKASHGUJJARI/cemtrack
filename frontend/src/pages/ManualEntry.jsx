@@ -46,7 +46,7 @@ const ManualEntry = () => {
 useEffect(() => {
   const fetchRecent = async () => {
     try {
-      const res = await API.get(`/readings/history?source=manual&operator_id=${user.id}&limit=50`);
+      const res = await API.get(`/readings/history?source=manual&limit=50`);
       const entries = res.data.data.map(r => {
         const cfg = parameterConfig[r.parameter_name];
         let status = null;
@@ -65,8 +65,16 @@ useEffect(() => {
           value: parseFloat(r.value),
           unit: r.unit,
           status,
-          time: new Date(r.recorded_at).toLocaleString('en-IN', { timeZone: 'Asia/Kolkata', day: '2-digit', month: 'short', hour: '2-digit', minute: '2-digit' }),
+          time: new Date(new Date(r.recorded_at).getTime() + (5.5 * 60 * 60 * 1000)).toLocaleString('en-IN', {
+            day: '2-digit',
+            month: 'short',
+            hour: '2-digit',
+            minute: '2-digit',
+            hour12: true,
+          }),
           operator_id: r.operator_id,
+          operator_name: r.operator_name || 'Unknown',
+          operator_role: r.operator_role || 'operator',
         };
       });
       setRecentEntries(entries);
@@ -378,56 +386,71 @@ useEffect(() => {
             ) : (
               <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
                 {recentEntries.map((entry) => (
-                  <div key={entry.id} style={{
-                    background: 'rgba(255,255,255,0.03)',
-                    border: `1px solid ${entry.status ? statusColor[entry.status] + '33' : 'rgba(255,255,255,0.06)'}`,
-                    borderRadius: '8px',
-                    padding: '10px 14px',
-                    display: 'flex',
-                    justifyContent: 'space-between',
-                    alignItems: 'center',
-                  }}>
-                    <div>
-                      <div style={{ color: 'white', fontSize: '13px', fontWeight: '500' }}>{entry.parameter}</div>
-                      <div style={{ color: '#475569', fontSize: '11px' }}>{entry.time}</div>
-                    </div>
-                    <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
-                      <div style={{ textAlign: 'right' }}>
-                        <div style={{
-                          color: entry.status ? statusColor[entry.status] : 'white',
-                          fontWeight: 'bold', fontFamily: 'monospace',
-                        }}>
-                          {entry.value} {entry.unit}
-                        </div>
-                        {entry.status && (
-                          <div style={{
-                            color: statusColor[entry.status],
-                            fontSize: '10px', textTransform: 'uppercase',
-                          }}>
-                            {entry.status}
-                          </div>
-                        )}
-                      </div>
-                      {/* Delete button — only own entries */}
-                      {entry.operator_id === user.id && (
-                        <button
-                          onClick={() => handleDelete(entry.id)}
-                          style={{
-                            background: 'rgba(239,68,68,0.1)',
-                            border: '1px solid rgba(239,68,68,0.2)',
-                            borderRadius: '6px',
-                            color: '#f87171',
-                            padding: '4px 8px',
-                            fontSize: '12px',
-                            cursor: 'pointer',
-                          }}
-                        >
-                          🗑️
-                        </button>
-                      )}
-                    </div>
-                  </div>
-                ))}
+  <div key={entry.id} style={{
+    background: 'rgba(255,255,255,0.03)',
+    border: `1px solid ${entry.status ? statusColor[entry.status] + '33' : 'rgba(255,255,255,0.06)'}`,
+    borderRadius: '8px',
+    padding: '10px 14px',
+    display: 'flex',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+  }}>
+    <div>
+      <div style={{ color: 'white', fontSize: '13px', fontWeight: '500' }}>
+        {entry.parameter}
+      </div>
+      <div style={{ color: '#64748b', fontSize: '11px', marginTop: '2px', display: 'flex', alignItems: 'center', gap: '6px' }}>
+        👤 {entry.operator_name}
+        <span style={{
+          background: 'rgba(249,115,22,0.1)',
+          color: '#fb923c',
+          fontSize: '10px',
+          padding: '1px 6px',
+          borderRadius: '4px',
+          textTransform: 'uppercase',
+        }}>
+          {entry.operator_role}
+        </span>
+        · {entry.time}
+      </div>
+    </div>
+    <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+      <div style={{ textAlign: 'right' }}>
+        <div style={{
+          color: entry.status ? statusColor[entry.status] : 'white',
+          fontWeight: 'bold', fontFamily: 'monospace',
+        }}>
+          {entry.value} {entry.unit}
+        </div>
+        {entry.status && (
+          <div style={{
+            color: statusColor[entry.status],
+            fontSize: '10px', textTransform: 'uppercase',
+          }}>
+            {entry.status}
+          </div>
+        )}
+      </div>
+      {/* Delete button — only own entries */}
+      {entry.operator_id === user.id && (
+        <button
+          onClick={() => handleDelete(entry.id)}
+          style={{
+            background: 'rgba(239,68,68,0.1)',
+            border: '1px solid rgba(239,68,68,0.2)',
+            borderRadius: '6px',
+            color: '#f87171',
+            padding: '4px 8px',
+            fontSize: '12px',
+            cursor: 'pointer',
+          }}
+        >
+          🗑️
+        </button>
+      )}
+    </div>
+  </div>
+))}
               </div>
             )}
           </div>

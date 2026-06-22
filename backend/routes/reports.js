@@ -50,19 +50,20 @@ router.get('/shift', authenticate, authorize('manager', 'admin'), async (req, re
     `);
 
     // Manual entries in this period
-    const manualResult = await pool.query(`
-      SELECT 
-        sr.parameter_name,
-        sr.value,
-        sr.unit,
-        sr.recorded_at,
-        u.name as operator_name
-      FROM sensor_readings sr
-      LEFT JOIN users u ON sr.operator_id = u.id
-      WHERE sr.source = 'manual'
-        AND sr.recorded_at >= NOW() - INTERVAL '${safeHours} hours'
-      ORDER BY sr.recorded_at DESC;
-    `);
+const manualResult = await pool.query(`
+  SELECT 
+    sr.parameter_name,
+    sr.value,
+    sr.unit,
+    sr.recorded_at,
+    u.name as operator_name,
+    u.role as operator_role
+  FROM sensor_readings sr
+  LEFT JOIN users u ON sr.operator_id = u.id
+  WHERE sr.source = 'manual'
+    AND sr.recorded_at >= NOW() - INTERVAL '${safeHours} hours'
+  ORDER BY sr.recorded_at DESC;
+`);
 
     res.json({
       success: true,

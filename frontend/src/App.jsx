@@ -48,7 +48,7 @@ function App() {
                 <ProtectedRoute roles={['manager', 'admin']}><Reports /></ProtectedRoute>
               } />
               <Route path='/ai-insights' element={
-                <ProtectedRoute roles={['manager', 'admin']}><AIInsights /></ProtectedRoute>
+                <ProtectedRoute ><AIInsights /></ProtectedRoute>
               } />
               <Route path='/user-management' element={
                 <ProtectedRoute roles={['admin']}><UserManagement /></ProtectedRoute>

@@ -51,29 +51,30 @@ router.get('/history', authenticate, async (req, res) => {
 
   try {
     let query = `
-      SELECT id, parameter_name, value, unit, source, operator_id, recorded_at
-      FROM sensor_readings
+      SELECT sr.id, sr.parameter_name, sr.value, sr.unit, sr.source, 
+             sr.operator_id, sr.recorded_at,
+             u.name as operator_name, u.role as operator_role
+      FROM sensor_readings sr
+      LEFT JOIN users u ON sr.operator_id = u.id
       WHERE 1=1
     `;
     let params = [];
 
     if (parameter) {
       params.push(parameter);
-      query += ` AND parameter_name = $${params.length}`;
+      query += ` AND sr.parameter_name = $${params.length}`;
     }
-
     if (source) {
       params.push(source);
-      query += ` AND source = $${params.length}`;
+      query += ` AND sr.source = $${params.length}`;
     }
-
     if (operator_id) {
       params.push(operator_id);
-      query += ` AND operator_id = $${params.length}`;
+      query += ` AND sr.operator_id = $${params.length}`;
     }
 
     params.push(limit);
-    query += ` ORDER BY recorded_at DESC LIMIT $${params.length}`;
+    query += ` ORDER BY sr.recorded_at DESC LIMIT $${params.length}`;
 
     const result = await pool.query(query, params);
     res.json({ success: true, data: result.rows });

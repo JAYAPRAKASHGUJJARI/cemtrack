@@ -428,13 +428,23 @@ const Reports = () => {
                         <div style={{ color: 'white', fontSize: '13px', fontWeight: '500' }}>
                           {parameterDisplayNames[entry.parameter_name] || entry.parameter_name}
                         </div>
-                        <div style={{ color: '#475569', fontSize: '11px', marginTop: '2px' }}>
-                          By {entry.operator_name || 'Unknown'} · {new Date(entry.recorded_at).toLocaleString('en-IN', {
-                            timeZone: 'Asia/Kolkata',
-                            day: '2-digit', month: 'short',
-                            hour: '2-digit', minute: '2-digit', hour12: true,
-                          })}
-                        </div>
+                     <div style={{ color: '#475569', fontSize: '11px', marginTop: '2px', display: 'flex', alignItems: 'center', gap: '6px' }}>
+  👤 {entry.operator_name || 'Unknown'}
+  <span style={{
+    background: 'rgba(249,115,22,0.1)',
+    color: '#fb923c',
+    fontSize: '10px',
+    padding: '1px 6px',
+    borderRadius: '4px',
+    textTransform: 'uppercase',
+  }}>
+    {entry.operator_role || 'operator'}
+  </span>
+  · {new Date(new Date(entry.recorded_at).getTime() + (5.5 * 60 * 60 * 1000)).toLocaleString('en-IN', {
+    day: '2-digit', month: 'short',
+    hour: '2-digit', minute: '2-digit', hour12: true,
+  })}
+</div>
                       </div>
                       <div style={{ color: '#fb923c', fontWeight: 'bold', fontFamily: 'monospace' }}>
                         {parseFloat(entry.value).toFixed(2)} {entry.unit}

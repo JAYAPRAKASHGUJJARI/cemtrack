@@ -19,7 +19,7 @@ const Navbar = () => {
     { path: '/alerts', label: '🚨 Alerts', roles: ['operator', 'manager', 'admin'] },
     { path: '/manual-entry', label: '✏️ Manual Entry', roles: ['operator', 'manager', 'admin'] },
     { path: '/reports', label: '📋 Reports', roles: ['manager', 'admin'] },
-    { path: '/ai-insights', label: '🤖 AI Insights', roles: ['manager', 'admin'] },
+    { path: '/ai-insights', label: '🤖 AI Insights', roles: ['operator','manager', 'admin'] },
     { path: '/user-management', label: '👥 Users', roles: ['admin'] },
   ];
 
