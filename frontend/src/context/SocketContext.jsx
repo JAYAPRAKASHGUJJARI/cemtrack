@@ -10,7 +10,7 @@ export const SocketProvider = ({ children }) => {
 
   useEffect(() => {
     if (user) {
-      const newSocket = io('http://localhost:8080');
+      const newSocket = io('https://cemtrack-backend.onrender.com');
       setSocket(newSocket);
       console.log('🔌 Socket connected!');
 
