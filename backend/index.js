@@ -12,6 +12,7 @@ import alertsRouter from './routes/alerts.js';
 import aiRouter from './routes/ai.js';
 import {initSocket} from './socket/socketHandler.js';
 import reportsRouter from './routes/reports.js';
+import shiftsRouter from './routes/shifts.js';
 const app = express();
 const httpServer = createServer(app);
 const io = new Server(httpServer, {
@@ -30,6 +31,7 @@ app.use('/users', usersRouter);
 app.use('/alerts', alertsRouter);
 app.use('/ai', aiRouter);
 app.use('/reports', reportsRouter);
+app.use('/shifts', shiftsRouter);
 
 app.get('/', (req, res) => {
   res.json({ message: 'cem track api is working', version: '1.0.0' });
@@ -42,16 +44,28 @@ const PORT = process.env.PORT || 8080;
 const startCleanup = () => {
   setInterval(async () => {
     try {
-      await pool.query(`DELETE FROM sensor_readings WHERE recorded_at < NOW() - INTERVAL '7 days'`);
-      console.log('🧹 Cleaned up old readings');
-      await pool.query(`DELETE FROM alerts WHERE created_at < NOW() - INTERVAL '30 days'`);
-      console.log('🧹 Cleaned up old alerts');
+      await pool.query(`
+        DELETE FROM sensor_readings 
+        WHERE recorded_at < NOW() - INTERVAL '1 day'
+      `);
+      console.log(`🧹 Cleaned up old readings`);
+
+      await pool.query(`
+        DELETE FROM alerts
+        WHERE created_at < NOW() - INTERVAL '7 days'
+      `);
+      console.log(`🧹 Cleaned up old alerts`);
+
+      await pool.query(`
+        DELETE FROM shifts
+        WHERE start_time < NOW() - INTERVAL '12 months' AND end_time IS NOT NULL
+      `);
+      console.log(`🧹 Cleaned up old shifts`);
     } catch (err) {
       console.error('Cleanup error:', err.message);
     }
-  }, 24 * 60 * 60 * 1000);
+  }, 24 * 60 * 60 * 1000); // every 24 hours
 };
-
 httpServer.listen(PORT, () => {
   console.log(`🚀 CemTrack server running on port ${PORT}`);
   runSimulator();

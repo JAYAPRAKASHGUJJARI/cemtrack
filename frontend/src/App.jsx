@@ -12,7 +12,7 @@ import Reports from './pages/Reports';
 import AIInsights from './pages/AIInsights';
 import UserManagement from './pages/UserManagement';
 import { useAuth } from './context/AuthContext';
-
+import Shifts from './pages/Shifts';
 const Layout = ({ children }) => {
   const { user } = useAuth();
   return (
@@ -53,6 +53,9 @@ function App() {
               <Route path='/user-management' element={
                 <ProtectedRoute roles={['admin']}><UserManagement /></ProtectedRoute>
               } />
+              <Route path='/shifts' element={
+  <ProtectedRoute><Shifts /></ProtectedRoute>
+} />
             </Routes>
           </Layout>
         </SocketProvider>

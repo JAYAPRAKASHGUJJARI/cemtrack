@@ -21,6 +21,7 @@ const Navbar = () => {
     { path: '/reports', label: '📋 Reports', roles: ['manager', 'admin'] },
     { path: '/ai-insights', label: '🤖 AI Insights', roles: ['operator','manager', 'admin'] },
     { path: '/user-management', label: '👥 Users', roles: ['admin'] },
+    { path: '/shifts', label: '🕐 Shifts', roles: ['operator', 'manager', 'admin'] },
   ];
 
   const visibleItems = navItems.filter(item => item.roles.includes(user?.role));

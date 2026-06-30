@@ -139,6 +139,10 @@ const Dashboard = () => {
   const [warningCount, setWarningCount] = useState(0);
   const [lastTick, setLastTick] = useState(null);
   const [connected, setConnected] = useState(false);
+  const [currentShift, setCurrentShift] = useState(null);
+const [shiftLoading, setShiftLoading] = useState(false);
+const [shiftNotes, setShiftNotes] = useState('');
+const [showEndModal, setShowEndModal] = useState(false);
 
   // ✅ fetchActiveAlerts uses /alerts/stats so Dashboard and Alerts page show same numbers
   const fetchActiveAlerts = async () => {
@@ -151,6 +155,40 @@ const Dashboard = () => {
       console.error('Failed to fetch alerts:', err);
     }
   };
+  const fetchCurrentShift = async () => {
+  try {
+    const res = await API.get('/shifts/current');
+    setCurrentShift(res.data.data);
+  } catch (err) {
+    console.error('Failed to fetch shift:', err);
+  }
+};
+
+const handleStartShift = async () => {
+  setShiftLoading(true);
+  try {
+    const res = await API.post('/shifts/start');
+    setCurrentShift(res.data.data);
+  } catch (err) {
+    alert(err.response?.data?.error || 'Failed to start shift');
+  } finally {
+    setShiftLoading(false);
+  }
+};
+
+const handleEndShift = async () => {
+  setShiftLoading(true);
+  try {
+    await API.patch(`/shifts/${currentShift.id}/end`, { notes: shiftNotes });
+    setCurrentShift(null);
+    setShiftNotes('');
+    setShowEndModal(false);
+  } catch (err) {
+    alert(err.response?.data?.error || 'Failed to end shift');
+  } finally {
+    setShiftLoading(false);
+  }
+};
 
   useEffect(() => {
     const fetchLatest = async () => {
@@ -165,6 +203,7 @@ const Dashboard = () => {
     };
     fetchLatest();
     fetchActiveAlerts();
+    fetchCurrentShift();
   }, []);
 
   useEffect(() => {
@@ -206,14 +245,155 @@ const Dashboard = () => {
       padding: '24px',
       fontFamily: 'Arial, sans-serif',
     }}>
-      <div style={{ marginBottom: '24px' }}>
-        <h1 style={{ color: 'white', fontSize: '24px', fontWeight: 'bold', margin: '0 0 4px' }}>
-          Live Dashboard
-        </h1>
-        <p style={{ color: '#64748b', fontSize: '14px', margin: 0 }}>
-          Welcome back, {user?.name} · Real-time plant monitoring
-        </p>
+   <div style={{ marginBottom: '24px' }}>
+  <h1 style={{ color: 'white', fontSize: '24px', fontWeight: 'bold', margin: '0 0 4px' }}>
+    Live Dashboard
+  </h1>
+  <p style={{ color: '#64748b', fontSize: '14px', margin: 0 }}>
+    Welcome back, {user?.name} · Real-time plant monitoring
+  </p>
+</div>
+
+{/* Shift Banner */}
+<div style={{
+  background: currentShift ? 'rgba(34,197,94,0.08)' : 'rgba(255,255,255,0.03)',
+  border: `1px solid ${currentShift ? 'rgba(34,197,94,0.3)' : 'rgba(255,255,255,0.08)'}`,
+  borderRadius: '12px',
+  padding: '16px 20px',
+  marginBottom: '24px',
+  display: 'flex',
+  justifyContent: 'space-between',
+  alignItems: 'center',
+}}>
+  <div>
+    {currentShift ? (
+      <>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '4px' }}>
+          <div style={{
+            width: '8px', height: '8px', borderRadius: '50%',
+            background: '#22c55e', boxShadow: '0 0 8px #22c55e',
+          }} />
+          <span style={{ color: '#4ade80', fontSize: '14px', fontWeight: 'bold', textTransform: 'capitalize' }}>
+            {currentShift.shift_name} Shift Active
+          </span>
+        </div>
+        <div style={{ color: '#64748b', fontSize: '12px' }}>
+          Started at {new Date(new Date(currentShift.start_time).getTime() + (5.5 * 60 * 60 * 1000)).toLocaleString('en-IN', {
+            day: '2-digit', month: 'short', hour: '2-digit', minute: '2-digit', hour12: true,
+          })}
+        </div>
+      </>
+    ) : (
+      <div style={{ color: '#94a3b8', fontSize: '14px' }}>
+        🕐 No active shift — start your shift to begin tracking
       </div>
+    )}
+  </div>
+
+  <div>
+    {currentShift ? (
+      <button
+        onClick={() => setShowEndModal(true)}
+        disabled={shiftLoading}
+        style={{
+          padding: '8px 18px',
+          background: 'rgba(239,68,68,0.1)',
+          border: '1px solid rgba(239,68,68,0.3)',
+          borderRadius: '8px',
+          color: '#f87171',
+          fontSize: '13px',
+          fontWeight: 'bold',
+          cursor: shiftLoading ? 'not-allowed' : 'pointer',
+        }}
+      >
+        ⏹ End Shift
+      </button>
+    ) : (
+      <button
+        onClick={handleStartShift}
+        disabled={shiftLoading}
+        style={{
+          padding: '8px 18px',
+          background: 'linear-gradient(135deg, #22c55e, #16a34a)',
+          border: 'none',
+          borderRadius: '8px',
+          color: 'white',
+          fontSize: '13px',
+          fontWeight: 'bold',
+          cursor: shiftLoading ? 'not-allowed' : 'pointer',
+        }}
+      >
+        {shiftLoading ? '⏳ Starting...' : '▶ Start Shift'}
+      </button>
+    )}
+  </div>
+</div>
+
+{/* End Shift Modal */}
+{showEndModal && (
+  <div style={{
+    position: 'fixed', top: 0, left: 0, right: 0, bottom: 0,
+    background: 'rgba(0,0,0,0.7)',
+    display: 'flex', alignItems: 'center', justifyContent: 'center',
+    zIndex: 1000,
+  }}>
+    <div style={{
+      background: '#1e293b',
+      border: '1px solid rgba(255,255,255,0.1)',
+      borderRadius: '16px', padding: '32px',
+      width: '100%', maxWidth: '400px',
+    }}>
+      <h3 style={{ color: 'white', fontSize: '18px', fontWeight: 'bold', margin: '0 0 8px' }}>
+        ⏹ End Shift
+      </h3>
+      <p style={{ color: '#64748b', fontSize: '14px', margin: '0 0 20px' }}>
+        Add handover notes for the next shift (optional)
+      </p>
+      <textarea
+        value={shiftNotes}
+        onChange={e => setShiftNotes(e.target.value)}
+        placeholder='Any issues, observations, or notes for next operator...'
+        rows={4}
+        style={{
+          width: '100%', padding: '12px 16px',
+          background: 'rgba(255,255,255,0.05)',
+          border: '1px solid rgba(255,255,255,0.1)',
+          borderRadius: '8px', color: 'white',
+          fontSize: '14px', outline: 'none',
+          resize: 'vertical', boxSizing: 'border-box',
+          marginBottom: '20px', fontFamily: 'Arial, sans-serif',
+        }}
+      />
+      <div style={{ display: 'flex', gap: '12px' }}>
+        <button
+          onClick={handleEndShift}
+          disabled={shiftLoading}
+          style={{
+            flex: 1, padding: '12px',
+            background: 'linear-gradient(135deg, #ef4444, #dc2626)',
+            border: 'none', borderRadius: '8px',
+            color: 'white', fontSize: '14px',
+            fontWeight: 'bold', cursor: 'pointer',
+          }}
+        >
+          {shiftLoading ? 'Ending...' : 'End Shift'}
+        </button>
+        <button
+          onClick={() => setShowEndModal(false)}
+          style={{
+            flex: 1, padding: '12px',
+            background: 'rgba(255,255,255,0.05)',
+            border: '1px solid rgba(255,255,255,0.1)',
+            borderRadius: '8px', color: '#94a3b8',
+            fontSize: '14px', cursor: 'pointer',
+          }}
+        >
+          Cancel
+        </button>
+      </div>
+    </div>
+  </div>
+)}
 
       {/* Stats Bar */}
       <div style={{
