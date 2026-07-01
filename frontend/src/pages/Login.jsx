@@ -172,16 +172,30 @@ const Login = () => {
           </button>
         </form>
 
-        {/* Footer */}
-        <p style={{
-          textAlign: 'center',
-          color: '#475569',
-          fontSize: '12px',
-          marginTop: '24px',
-          marginBottom: 0
-        }}>
-          CemTrack v1.0 — Industrial Monitoring System
-        </p>
+       {/* Footer */}
+<p style={{
+  textAlign: 'center',
+  color: '#475569',
+  fontSize: '12px',
+  marginTop: '24px',
+  marginBottom: 0
+}}>
+  CemTrack v1.0 — Industrial Monitoring System
+</p>
+
+<p style={{ textAlign: 'center', marginTop: '12px', marginBottom: 0 }}>
+  <span
+    onClick={() => navigate('/change-password')}
+    style={{
+      color: '#fb923c',
+      fontSize: '13px',
+      cursor: 'pointer',
+      textDecoration: 'underline',
+    }}
+  >
+    🔑 Change Password
+  </span>
+</p>
       </div>
     </div>
   );

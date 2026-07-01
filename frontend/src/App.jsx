@@ -13,6 +13,7 @@ import AIInsights from './pages/AIInsights';
 import UserManagement from './pages/UserManagement';
 import { useAuth } from './context/AuthContext';
 import Shifts from './pages/Shifts';
+import ChangePassword from './pages/ChangePassword';
 const Layout = ({ children }) => {
   const { user } = useAuth();
   return (
@@ -31,6 +32,7 @@ function App() {
           <Layout>
             <Routes>
               <Route path='/login' element={<Login />} />
+              <Route path='/change-password' element={<ChangePassword />} />
               <Route path='/' element={<Navigate to='/dashboard' />} />
               <Route path='/dashboard' element={
                 <ProtectedRoute><Dashboard /></ProtectedRoute>
