@@ -10,6 +10,9 @@ const UserManagement = () => {
   const [newPassword, setNewPassword] = useState('');
   const [message, setMessage] = useState(null);
   const [error, setError] = useState(null);
+  const [showAddModal, setShowAddModal] = useState(false);
+const [newUser, setNewUser] = useState({ name: '', email: '', password: '', role: 'operator' });
+const [addLoading, setAddLoading] = useState(false);
 
   const fetchUsers = async () => {
     try {
@@ -80,6 +83,40 @@ const UserManagement = () => {
     }
   };
 
+  const handleAddUser = async () => {
+  if (!newUser.name || !newUser.email || !newUser.password) {
+    showError('Please fill in all fields');
+    return;
+  }
+  if (newUser.password.length < 6) {
+    showError('Password must be at least 6 characters');
+    return;
+  }
+  setAddLoading(true);
+  try {
+    await API.post('/auth/register', {
+      name: newUser.name,
+      email: newUser.email,
+      password: newUser.password,
+    });
+    // Change role if not operator
+    if (newUser.role !== 'operator') {
+      const res = await API.get('/users');
+      const created = res.data.data.find(u => u.email === newUser.email);
+      if (created) {
+        await API.patch(`/users/${created.id}/role`, { role: newUser.role });
+      }
+    }
+    showMessage(`User ${newUser.name} created successfully!`);
+    setShowAddModal(false);
+    setNewUser({ name: '', email: '', password: '', role: 'operator' });
+    fetchUsers();
+  } catch (err) {
+    showError(err.response?.data?.error || 'Failed to create user');
+  } finally {
+    setAddLoading(false);
+  }
+};
   const roleBadge = {
     admin:    { bg: 'rgba(239,68,68,0.15)',   color: '#f87171',  border: 'rgba(239,68,68,0.3)' },
     manager:  { bg: 'rgba(249,115,22,0.15)',  color: '#fb923c',  border: 'rgba(249,115,22,0.3)' },
@@ -94,14 +131,31 @@ const UserManagement = () => {
       fontFamily: 'Arial, sans-serif',
     }}>
       {/* Header */}
-      <div style={{ marginBottom: '24px' }}>
-        <h1 style={{ color: 'white', fontSize: '24px', fontWeight: 'bold', margin: '0 0 4px' }}>
-          👥 User Management
-        </h1>
-        <p style={{ color: '#64748b', fontSize: '14px', margin: 0 }}>
-          Manage user accounts, roles and permissions
-        </p>
-      </div>
+      <div style={{ marginBottom: '24px', display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
+  <div>
+    <h1 style={{ color: 'white', fontSize: '24px', fontWeight: 'bold', margin: '0 0 4px' }}>
+      👥 User Management
+    </h1>
+    <p style={{ color: '#64748b', fontSize: '14px', margin: 0 }}>
+      Manage user accounts, roles and permissions
+    </p>
+  </div>
+  <button
+    onClick={() => setShowAddModal(true)}
+    style={{
+      padding: '10px 20px',
+      background: 'linear-gradient(135deg, #f97316, #ea580c)',
+      border: 'none',
+      borderRadius: '8px',
+      color: 'white',
+      fontSize: '14px',
+      fontWeight: 'bold',
+      cursor: 'pointer',
+    }}
+  >
+    + Add User
+  </button>
+</div>
 
       {/* Message / Error */}
       {message && (
@@ -359,7 +413,128 @@ const UserManagement = () => {
             </div>
           </div>
         </div>
+          
       )}
+      {/* Add User Modal */}
+{showAddModal && (
+  <div style={{
+    position: 'fixed', top: 0, left: 0, right: 0, bottom: 0,
+    background: 'rgba(0,0,0,0.7)',
+    display: 'flex', alignItems: 'center', justifyContent: 'center',
+    zIndex: 1000,
+  }}>
+    <div style={{
+      background: '#1e293b',
+      border: '1px solid rgba(255,255,255,0.1)',
+      borderRadius: '16px', padding: '32px',
+      width: '100%', maxWidth: '420px',
+    }}>
+      <h3 style={{ color: 'white', fontSize: '18px', fontWeight: 'bold', margin: '0 0 20px' }}>
+        👤 Add New User
+      </h3>
+
+      {/* Name */}
+      <label style={{ color: '#94a3b8', fontSize: '12px', display: 'block', marginBottom: '6px' }}>NAME</label>
+      <input
+        type='text'
+        value={newUser.name}
+        onChange={e => setNewUser({ ...newUser, name: e.target.value })}
+        placeholder='Full name'
+        style={{
+          width: '100%', padding: '10px 14px',
+          background: 'rgba(255,255,255,0.05)',
+          border: '1px solid rgba(255,255,255,0.1)',
+          borderRadius: '8px', color: 'white',
+          fontSize: '14px', outline: 'none',
+          boxSizing: 'border-box', marginBottom: '16px',
+        }}
+      />
+
+      {/* Email */}
+      <label style={{ color: '#94a3b8', fontSize: '12px', display: 'block', marginBottom: '6px' }}>EMAIL</label>
+      <input
+        type='email'
+        value={newUser.email}
+        onChange={e => setNewUser({ ...newUser, email: e.target.value })}
+        placeholder='email@cemtrack.com'
+        style={{
+          width: '100%', padding: '10px 14px',
+          background: 'rgba(255,255,255,0.05)',
+          border: '1px solid rgba(255,255,255,0.1)',
+          borderRadius: '8px', color: 'white',
+          fontSize: '14px', outline: 'none',
+          boxSizing: 'border-box', marginBottom: '16px',
+        }}
+      />
+
+      {/* Password */}
+      <label style={{ color: '#94a3b8', fontSize: '12px', display: 'block', marginBottom: '6px' }}>PASSWORD</label>
+      <input
+        type='password'
+        value={newUser.password}
+        onChange={e => setNewUser({ ...newUser, password: e.target.value })}
+        placeholder='Min 6 characters'
+        style={{
+          width: '100%', padding: '10px 14px',
+          background: 'rgba(255,255,255,0.05)',
+          border: '1px solid rgba(255,255,255,0.1)',
+          borderRadius: '8px', color: 'white',
+          fontSize: '14px', outline: 'none',
+          boxSizing: 'border-box', marginBottom: '16px',
+        }}
+      />
+
+      {/* Role */}
+      <label style={{ color: '#94a3b8', fontSize: '12px', display: 'block', marginBottom: '6px' }}>ROLE</label>
+      <select
+        value={newUser.role}
+        onChange={e => setNewUser({ ...newUser, role: e.target.value })}
+        style={{
+          width: '100%', padding: '10px 14px',
+          background: 'rgba(255,255,255,0.05)',
+          border: '1px solid rgba(255,255,255,0.1)',
+          borderRadius: '8px', color: 'white',
+          fontSize: '14px', outline: 'none',
+          boxSizing: 'border-box', marginBottom: '24px',
+          cursor: 'pointer',
+        }}
+      >
+        <option value="operator" style={{ background: '#1e293b' }}>Operator</option>
+        <option value="manager" style={{ background: '#1e293b' }}>Manager</option>
+        <option value="admin" style={{ background: '#1e293b' }}>Admin</option>
+      </select>
+
+      {/* Buttons */}
+      <div style={{ display: 'flex', gap: '12px' }}>
+        <button
+          onClick={handleAddUser}
+          disabled={addLoading}
+          style={{
+            flex: 1, padding: '12px',
+            background: addLoading ? 'rgba(249,115,22,0.5)' : 'linear-gradient(135deg, #f97316, #ea580c)',
+            border: 'none', borderRadius: '8px',
+            color: 'white', fontSize: '14px',
+            fontWeight: 'bold', cursor: addLoading ? 'not-allowed' : 'pointer',
+          }}
+        >
+          {addLoading ? '⏳ Creating...' : '✅ Create User'}
+        </button>
+        <button
+          onClick={() => { setShowAddModal(false); setNewUser({ name: '', email: '', password: '', role: 'operator' }); }}
+          style={{
+            flex: 1, padding: '12px',
+            background: 'rgba(255,255,255,0.05)',
+            border: '1px solid rgba(255,255,255,0.1)',
+            borderRadius: '8px', color: '#94a3b8',
+            fontSize: '14px', cursor: 'pointer',
+          }}
+        >
+          Cancel
+        </button>
+      </div>
+    </div>
+  </div>
+)}
     </div>
   );
 };
