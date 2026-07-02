@@ -46,9 +46,9 @@ const startCleanup = () => {
   setInterval(async () => {
     try {
       await pool.query(`
-        DELETE FROM sensor_readings 
-        WHERE recorded_at < NOW() - INTERVAL '1 day'
-      `);
+  DELETE FROM sensor_readings 
+  WHERE recorded_at < NOW() - INTERVAL '7 days'
+`);
       console.log(`🧹 Cleaned up old readings`);
 
       await pool.query(`

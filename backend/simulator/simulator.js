@@ -76,7 +76,7 @@ const runSimulator = async () => {
     } catch (err) {
       console.error('Simulator error:', err.message);
     }
-  }, 5000);
+  }, 60000); // cahnged to 1 minute
 };
 
 export { runSimulator };
