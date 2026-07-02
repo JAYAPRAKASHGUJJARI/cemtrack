@@ -278,9 +278,10 @@ const handleEndShift = async () => {
           </span>
         </div>
         <div style={{ color: '#64748b', fontSize: '12px' }}>
-          Started at {new Date(new Date(currentShift.start_time).getTime() + (5.5 * 60 * 60 * 1000)).toLocaleString('en-IN', {
-            day: '2-digit', month: 'short', hour: '2-digit', minute: '2-digit', hour12: true,
-          })}
+          Started at {new Date(currentShift.start_time).toLocaleString('en-IN', {
+  timeZone: 'Asia/Kolkata',
+  day: '2-digit', month: 'short', hour: '2-digit', minute: '2-digit', hour12: true,
+})}
         </div>
       </>
     ) : (
