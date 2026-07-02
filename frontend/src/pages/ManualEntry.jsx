@@ -65,13 +65,14 @@ useEffect(() => {
           value: parseFloat(r.value),
           unit: r.unit,
           status,
-          time: new Date(new Date(r.recorded_at).getTime() + (5.5 * 60 * 60 * 1000)).toLocaleString('en-IN', {
-            day: '2-digit',
-            month: 'short',
-            hour: '2-digit',
-            minute: '2-digit',
-            hour12: true,
-          }),
+         time: new Date(r.recorded_at).toLocaleString('en-IN', {
+  timeZone: 'Asia/Kolkata',
+  day: '2-digit',
+  month: 'short',
+  hour: '2-digit',
+  minute: '2-digit',
+  hour12: true,
+}),
           operator_id: r.operator_id,
           operator_name: r.operator_name || 'Unknown',
           operator_role: r.operator_role || 'operator',
@@ -121,7 +122,14 @@ useEffect(() => {
         value: v,
         unit: config.unit,
         status: valueStatus,
-       time: new Date().toLocaleString('en-IN', { timeZone: 'Asia/Kolkata', day: '2-digit', month: 'short', hour: '2-digit', minute: '2-digit' }),
+      time: new Date().toLocaleString('en-IN', {
+  timeZone: 'Asia/Kolkata',
+  day: '2-digit',
+  month: 'short',
+  hour: '2-digit',
+  minute: '2-digit',
+  hour12: true,
+}),
         operator_id: user.id,
       };
 
