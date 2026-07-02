@@ -9,7 +9,8 @@ const shiftColors = {
 
 const formatIST = (dateStr) => {
   if (!dateStr) return '—';
-  return new Date(new Date(dateStr).getTime() + (5.5 * 60 * 60 * 1000)).toLocaleString('en-IN', {
+  return new Date(dateStr).toLocaleString('en-IN', {
+    timeZone: 'Asia/Kolkata',
     day: '2-digit', month: 'short', hour: '2-digit', minute: '2-digit', hour12: true,
   });
 };
