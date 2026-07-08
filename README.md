@@ -1,6 +1,6 @@
 # 🏭 CemTrack — Real-Time Cement Plant Monitoring System
 
-![CemTrack Dashboard](https://img.shields.io/badge/Status-Live-brightgreen) [Node](https://img.shields.io/badge/Node.js-v24-green) ![React](https://img.shields.io/badge/React-v19-blue)
+![CemTrack Dashboard](https://img.shields.io/badge/Status-Live-brightgreen) ![Node](https://img.shields.io/badge/Node.js-v24-green) ![React](https://img.shields.io/badge/React-v19-blue)
 
 > An Industry 4.0 solution that brings real-time IoT monitoring, WebSocket communication, role-based access control, and AI-powered analytics to cement plant operations — reducing problem response time from hours to seconds.
 
