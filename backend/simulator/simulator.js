@@ -30,17 +30,25 @@ const parameters = {
 };
 
 const generateValue = (param) => {
-  const { value, step } = param;
+  const { value, step, min, max } = param;
 
-  // 2% chance of spike
+  let newValue;
+
   if (Math.random() < 0.02) {
     const spikeDirection = Math.random() < 0.5 ? 1 : -1;
-    return parseFloat((value + spikeDirection * step * 6).toFixed(2));
+    newValue = value + spikeDirection * step * 6;
+  } else {
+    const change = (Math.random() - 0.5) * 2 * step;
+    newValue = value + change;
   }
 
-  // Normal gradual change
-  const change = (Math.random() - 0.5) * 2 * step;
-  return parseFloat((value + change).toFixed(2));
+  // Clamp value between min*0.8 and max*1.2
+  // Allows slight violations for alerts but prevents going wildly negative
+  const hardMin = min * 0.8;
+  const hardMax = max * 1.2;
+  newValue = Math.max(hardMin, Math.min(hardMax, newValue));
+
+  return parseFloat(newValue.toFixed(2));
 };
 
 const runSimulator = async () => {
