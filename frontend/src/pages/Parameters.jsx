@@ -338,7 +338,7 @@ const Parameters = () => {
         </div>
         <div>
           <span style={{ color: '#64748b', fontSize: '12px' }}>UPDATE INTERVAL </span>
-          <span style={{ color: 'white', fontWeight: 'bold' }}>5 seconds</span>
+          <span style={{ color: 'white', fontWeight: 'bold' }}>one minute</span>
         </div>
       </div>
     </div>
