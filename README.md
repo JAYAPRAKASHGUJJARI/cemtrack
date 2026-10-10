@@ -104,7 +104,7 @@ CemTrack monitors **17 critical parameters** across kiln, raw mill, and cement m
 
 ### 📊 Live Dashboard
 - Real-time parameter cards for all 17 sensors
-- Live updates every 5 seconds via WebSocket
+- Live updates every 60 seconds via WebSocket
 - Color-coded status (Normal 🟢 / Warning 🟡 / Critical 🔴)
 - Progress bars showing value within safe range
 - Clickable alert stats — navigate directly to alerts
